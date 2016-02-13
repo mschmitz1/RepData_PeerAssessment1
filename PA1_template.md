@@ -29,7 +29,7 @@ library(ggplot2)
 # Histogramm
 qplot(part2data$steps, binwidth = 1000) + 
 	xlab("Total Number of Steps per Day \n(Original Data)") +
-	ylab("Frequencies") +
+	ylab("Frequency") +
 	theme(axis.title = element_text(face = "bold", size = 12)) +
 	geom_histogram(color = "black", fill = "green", binwidth = 1000)
 ```
@@ -58,7 +58,10 @@ Following steps are executed:
 # Daily Activities
 part3data <- aggregate(rawdata$steps, by = list(rawdata$interval), FUN = mean, na.rm = TRUE)
 names(part3data) <- c("interval", "steps")
-ggplot(part3data, aes(x = interval, y = steps)) + geom_line()
+ggplot(part3data, aes(x = interval, y = steps)) + geom_line() +
+    xlab("Interval") +
+    ylab("Number of Steps") +
+    theme(axis.title = element_text(face = "bold", size = 12))
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)
@@ -80,60 +83,12 @@ First the number of missing values is computed:
 
 ```r
 # Calculate total number of missing values
-library(sqldf)
-```
-
-```
-## Warning: package 'sqldf' was built under R version 3.2.3
-```
-
-```
-## Loading required package: gsubfn
-```
-
-```
-## Warning: package 'gsubfn' was built under R version 3.2.3
-```
-
-```
-## Loading required package: proto
-```
-
-```
-## Warning: package 'proto' was built under R version 3.2.3
-```
-
-```
-## Loading required package: RSQLite
-```
-
-```
-## Warning: package 'RSQLite' was built under R version 3.2.3
-```
-
-```
-## Loading required package: DBI
-```
-
-```
-## Warning: package 'DBI' was built under R version 3.2.3
-```
-
-```r
-countNAs <- sqldf("SELECT COUNT(*) FROM rawdata WHERE steps is NULL")
-```
-
-```
-## Loading required package: tcltk
-```
-
-```r
+countNAs <- nrow(rawdata[is.na(rawdata$steps), ])
 print(countNAs)
 ```
 
 ```
-##   COUNT(*)
-## 1     2304
+## [1] 2304
 ```
 The dataset part3data contains the average steps per intervall across all days. So my impute strategy
 is to replace the missing value in a special interval with the average of this interval across all days. One
@@ -163,12 +118,13 @@ Afterwards the histogram is generated
 # Histogramm of imputed data
 qplot(part4data$steps, binwidth = 1000) + 
 	xlab("Total Number of Steps per Day \n(Imputed Data)") +
-	ylab("Frequencies") +
+	ylab("Frequency") +
 	theme(axis.title = element_text(face = "bold", size = 12)) +
 	geom_histogram(color = "black", fill = "green", binwidth = 1000)
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)
+  
 Finally the mean and median values of the imputed data are computed:
 
 ```r
@@ -201,9 +157,14 @@ On base of this data the time series plot is generated:
 
 ```r
 # Generating the plot
-#qplot(interval, steps, data = part5data, facets = . ~ partofweek) + geom_line()
-qplot(interval, steps, data = part5data) + geom_line() + 
+ggplot(part5data, aes(x = interval, y = steps)) + geom_line() + 
+  xlab("Interval") +
+	ylab("Number of Steps") +
+  theme(axis.title = element_text(face = "bold", size = 12)) +
 	facet_grid(partofweek ~ .) 
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)
+    
+So on weekdays the steps rise higher in the morning after 5 o'clock, and the maximal
+number of steps is lower on weekends.

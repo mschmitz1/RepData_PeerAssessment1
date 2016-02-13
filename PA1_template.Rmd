@@ -1,5 +1,6 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
+subtitle: "Michael Schmitz"
 output: 
   html_document:
     keep_md: true
@@ -25,7 +26,7 @@ library(ggplot2)
 # Histogramm
 qplot(part2data$steps, binwidth = 1000) + 
 	xlab("Total Number of Steps per Day \n(Original Data)") +
-	ylab("Frequencies") +
+	ylab("Frequency") +
 	theme(axis.title = element_text(face = "bold", size = 12)) +
 	geom_histogram(color = "black", fill = "green", binwidth = 1000)
 # mean and median of the total number of steps taken per day
@@ -44,7 +45,10 @@ Following steps are executed:
 # Daily Activities
 part3data <- aggregate(rawdata$steps, by = list(rawdata$interval), FUN = mean, na.rm = TRUE)
 names(part3data) <- c("interval", "steps")
-ggplot(part3data, aes(x = interval, y = steps)) + geom_line()
+ggplot(part3data, aes(x = interval, y = steps)) + geom_line() +
+    xlab("Interval") +
+    ylab("Number of Steps") +
+    theme(axis.title = element_text(face = "bold", size = 12))
 maxvalue <- max(part3data$steps)
 maxinterval <- subset(part3data, steps == maxvalue)
 print(maxinterval)
@@ -55,8 +59,7 @@ print(maxinterval)
 First the number of missing values is computed:
 ```{R}
 # Calculate total number of missing values
-library(sqldf)
-countNAs <- sqldf("SELECT COUNT(*) FROM rawdata WHERE steps is NULL")
+countNAs <- nrow(rawdata[is.na(rawdata$steps), ])
 print(countNAs)
 ```
 The dataset part3data contains the average steps per intervall across all days. So my impute strategy
@@ -85,10 +88,11 @@ Afterwards the histogram is generated
 # Histogramm of imputed data
 qplot(part4data$steps, binwidth = 1000) + 
 	xlab("Total Number of Steps per Day \n(Imputed Data)") +
-	ylab("Frequencies") +
+	ylab("Frequency") +
 	theme(axis.title = element_text(face = "bold", size = 12)) +
 	geom_histogram(color = "black", fill = "green", binwidth = 1000)
 ```
+  
 Finally the mean and median values of the imputed data are computed:
 ```{R}
 # mean and median of the total number of steps taken per day of imputed data
@@ -113,7 +117,12 @@ names(part5data) <- c("interval", "partofweek", "steps")
 On base of this data the time series plot is generated:
 ```{R}
 # Generating the plot
-#qplot(interval, steps, data = part5data, facets = . ~ partofweek) + geom_line()
-qplot(interval, steps, data = part5data) + geom_line() + 
+ggplot(part5data, aes(x = interval, y = steps)) + geom_line() + 
+  xlab("Interval") +
+	ylab("Number of Steps") +
+  theme(axis.title = element_text(face = "bold", size = 12)) +
 	facet_grid(partofweek ~ .) 
 ```
+    
+So on weekdays the steps rise higher in the morning after 5 o'clock, and the maximal
+number of steps is lower on weekends.
